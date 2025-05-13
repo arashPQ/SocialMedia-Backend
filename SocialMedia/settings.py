@@ -19,8 +19,8 @@ AUTH_USER_MODEL = 'account.User'
 # Application definition
 
 SIMPLE_JWT = {
-    'Access_TOKEN_LIFETIME': timedelta(days=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=100),
+    'Access_TOKEN_LIFETIME': timedelta(hours=24),
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=12),
     'ROTATE_REFRESH_TOKENS': False,
     
 }
@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     
     "account",
     "post",
+    "search",
     
     
 ]
