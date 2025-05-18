@@ -3,8 +3,8 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 
 from account.models import User
 from account.serializers import UserSerializer
-from post.models import Post
-from post.serializers import PostSerializer
+from post.models import Post, Like, Comment
+from post.serializers import PostSerializer, PostDetailSerializer, CommentSerializer
 from post.forms import PostForm
 
 
@@ -12,10 +12,39 @@ from post.forms import PostForm
 @api_view(['GET'])
 def post_feed(request):
 
-    posts = Post.objects.all()
+    user_ids = [request.user.id]
+    
+    for user in request.user.friends.all():
+        user_ids.append(user.id)
+        
+        
+    posts = Post.objects.filter(created_by_id__in=list(user_ids))
 
     serializer = PostSerializer(posts, many=True)
 
+    return JsonResponse(serializer.data, safe=False)
+
+
+@api_view(['GET'])
+def post_detail(request, pk):
+    post = Post.objects.get(pk=pk)
+    
+    return JsonResponse({
+        'post': PostDetailSerializer(post).data
+    })
+
+
+@api_view(['POST'])
+def add_comment(request, pk):
+    comment_body = request.data.get('body')
+    comment = Comment.objects.create(body=comment_body, created_by=request.user)
+    post = Post.objects.get(pk=pk)
+    post.comments.add(comment)
+    post.comments_count = post.comments_count + 1
+    post.save()
+    
+    serializer = CommentSerializer(comment)
+    
     return JsonResponse(serializer.data, safe=False)
 
 
@@ -52,3 +81,18 @@ def user_posts(request, uname):
     }
 
     return JsonResponse(data, safe=False)
+
+
+@api_view(['POST'])
+def post_like(request, pk):
+    post = Post.objects.get(pk=pk)
+    if not post.likes.filter(created_by=request.user):
+        like = Like.objects.create(created_by=request.user)
+        post.likes_count = post.likes_count + 1
+        post.likes.add(like)
+        post.save()
+    
+        return JsonResponse({'message': 'like created'})
+
+    else:
+        return JsonResponse({'message': 'post already liked.'})
