@@ -37,9 +37,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar = models.ImageField(upload_to='avatars', blank=True, null=True)
     friends = models.ManyToManyField('self')
     friends_count = models.IntegerField(default=0)
+    posts_count = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    
+    peoples = models.ManyToManyField('self')
 
     date_joined = models.DateTimeField(default=timezone.now)
     last_login = models.DateTimeField(blank=True, null=True)
@@ -49,6 +52,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = []
+    
+    def get_avatar(self):
+        if self.avatar:
+            return settings.FAKE_SITE + self.avatar.url
+        else:
+            return f'{settings.FAKE_SITE}/static/img/default-profile.jpg'
 
 
 class FollowRequest(models.Model):

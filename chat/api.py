@@ -25,8 +25,8 @@ def conversation_detail(request, pk):
 
 
 @api_view(['GET'])
-def conversation_get_or_create(request, uname):
-    user = User.objects.get(username=uname)
+def conversation_get_or_create(request, pk):
+    user = User.objects.get(pk=pk)
 
     conversations = Conversation.objects.filter(users__in=list([request.user])).filter(users__in=list([user]))
 
