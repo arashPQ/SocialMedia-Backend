@@ -11,6 +11,8 @@ urlpatterns = [
     path('<uuid:pk>/add_comment/', api.add_comment, name='add_commnet'),
     path('profile/<uuid:id>/', api.user_posts, name='user_posts'),
     path('create/', api.create_post, name='create_post'),
+    path('<uuid:id>/delete/', api.delete_post, name='delete_post'),
+    path('<uuid:id>/report/', api.report_post, name='report_post'),
     path('trends/', api.trends, name='trends')
     
 ]

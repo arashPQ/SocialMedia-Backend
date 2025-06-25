@@ -7,6 +7,7 @@ app_name="account"
 urlpatterns = [
     path('me/', api.me, name='me'),
     path('profile/edit/', api.editme, name='editme'),
+    path('active/<uidb64>/<token>/', api.activate, name='activate'),
     path('profile/editpw/', api.edit_password, name='edit_password'),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),

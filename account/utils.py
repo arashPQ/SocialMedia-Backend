@@ -17,6 +17,7 @@ def SendVerificationEmail(request, user, mail_subject, email_template):
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': default_token_generator.make_token(user)
     })
+    print(message)
 
     to_email = user.email
     mail = EmailMessage(mail_subject, message, from_email, to=[to_email])

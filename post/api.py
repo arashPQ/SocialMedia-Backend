@@ -39,7 +39,7 @@ def post_detail(request, pk):
         user_ids.append(user.id)
         
         
-    post = Post.objects.filter(Q(created_by_id__in=list(user_ids) | Q(is_private=False))).get(pk=pk)
+    post = Post.objects.filter(Q(created_by_id__in=list(user_ids)) | Q(is_private=False)).get(pk=pk)
     
     return JsonResponse({
         'post': PostDetailSerializer(post).data
@@ -143,4 +143,23 @@ def post_like(request, pk):
 def trends(request):
     trends = Trends.objects.all()
     serializer = TrendsSerializer(Trends.objects.all(), many=True)
-    return JsonResponse(serializer.data, safe=False) 
+    return JsonResponse(serializer.data, safe=False)
+
+
+@api_view(['DELETE'])
+def delete_post(request, id):
+    post = Post.objects.filter(created_by=request.user).get(pk=id)
+    post.delete()
+    
+    return JsonResponse({'message': 'post deleted.'})
+    
+
+@api_view(['POST'])
+def report_post(request, id):
+    post = Post.objects.get(pk=id)
+    post.reported_by_people.add(request.user)
+    post.save()
+    
+    return JsonResponse({'message': 'post reported.'})
+    
+    

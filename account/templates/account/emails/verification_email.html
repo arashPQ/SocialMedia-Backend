@@ -38,11 +38,11 @@
     <tr>
       <td>
         
-        <h2 style="text-align: center;">Hi {{ user.first_name }}</h2>
+        <h2 style="text-align: center;">Hi {{ user.name }}</h2>
         <p style="text-align: center;">Please verify your email address to activate your account.</p>
         <div style="text-align: center;">
           <button>
-            <a href="{settings.FAKE_SITE}{% url 'account:activate' uidb64=uid token=token %}" class="activate-btn" style="color: #fff; width: 50px;">Activate Now</a>
+            <a href="http://127.0.0.1:8000{% url 'account:activate' uidb64=uid token=token %}" class="activate-btn" style="color: #fff; width: 50px;">Activate Now</a>
         </button>
         </div>
       </td> 

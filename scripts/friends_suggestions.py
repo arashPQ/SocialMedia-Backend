@@ -16,7 +16,7 @@ users = User.objects.all()
 
 for user in users:
     # Clear the suggestion list
-    user.peoples.clear()
+    user.people.clear()
 
     print('Find friends for:', user)
 
@@ -25,6 +25,6 @@ for user in users:
 
         for friendsfriend in friend.friends.all():
             if friendsfriend not in user.friends.all() and friendsfriend != user:
-                user.peoples.add(friendsfriend)
+                user.people.add(friendsfriend)
     
     print()

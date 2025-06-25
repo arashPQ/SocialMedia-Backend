@@ -1,14 +1,39 @@
 from django.http import JsonResponse
 from django.contrib.auth.forms import PasswordChangeForm
+from django.shortcuts import redirect
+from django.contrib import messages, auth
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from django.conf import settings
-from django.core.mail import EmailMessage
 
 
 from account.forms import SignupForm, ProfileForm
 from account.serializers import FollowRequestSerializer, UserSerializer
 from account.models import User, FollowRequest
+from account.utils import SendVerificationEmail
 from notification.utils import create_notification
+
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64,).decode()
+        user = User._default_manager.get(pk=uid)
+
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, "Congratulation! Your account is activated. Please login again")
+        auth.logout(request)
+        return redirect('account:token_obtain')
+    
+    else:
+        messages.error(request, "Invalid activation link")
+        return redirect('account:signup')
+
 
 
 @api_view(['GET'])
@@ -80,17 +105,13 @@ def signup(request):
     
     if form.is_valid():
         user = form.save()
-        # user.is_active = False
+        user.is_active = False
         user.save()
         
-        
-        # token = f'{settings.FAKE_SITE}/activatemail/?email={user.email}&id={user.id}'
-        # mail_subject = "Please Verify Your email"
-        # message = f"Verfify Your email address with : {token}"
-        # from_email = settings.DEFAULT_FROM_EMAIL
-        # to_email = user.email
-        # mail = EmailMessage(mail_subject, message, from_email, to=[to_email])
-        # mail.send()
+        mail_subject = "Please Verify Your email"
+        email_template = "account/emails/verification_email.html"
+        SendVerificationEmail(request, user, mail_subject, email_template)
+    # armanpq1990@gmail.com
         
     else:
         message = form.errors.as_json()
@@ -123,7 +144,7 @@ def followers(request, pk):
 
 @api_view(['GET'])
 def suggestion_people(request):
-    serializer = UserSerializer(request.user.peoples.all(), many=True)
+    serializer = UserSerializer(request.user.people.all(), many=True)
     
     return JsonResponse(serializer.data, safe=False)
 
