@@ -8,13 +8,14 @@ from post.models import Post, Like, Comment, Trends
 from post.serializers import TrendsSerializer, PostSerializer, PostDetailSerializer, CommentSerializer
 from post.forms import PostForm, AttachmentForm
 from notification.utils import create_notification
+from notification.utils import get_notif_count
 
 
 @api_view(['GET'])
 def post_feed(request):
 
     user_ids = [request.user.id]
-    
+    notif_count = get_notif_count(request).count()
     for user in request.user.friends.all():
         user_ids.append(user.id)
         
@@ -28,7 +29,10 @@ def post_feed(request):
 
     serializer = PostSerializer(posts, many=True)
 
-    return JsonResponse(serializer.data, safe=False)
+    return JsonResponse({
+        'serializer': serializer.data,
+        'notif_count': notif_count
+        }, safe=False)
 
 
 @api_view(['GET'])

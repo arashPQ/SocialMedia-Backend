@@ -111,7 +111,6 @@ def signup(request):
         mail_subject = "Please Verify Your email"
         email_template = "account/emails/verification_email.html"
         SendVerificationEmail(request, user, mail_subject, email_template)
-    # armanpq1990@gmail.com
         
     else:
         message = form.errors.as_json()

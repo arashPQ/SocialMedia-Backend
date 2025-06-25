@@ -1,3 +1,5 @@
+from django.http import JsonResponse
+
 from notification.models import Notification
 from post.models import Post
 from account.models import FollowRequest
@@ -41,3 +43,8 @@ def create_notification(request, type_of_notification, followrequest_id=None, po
     )
     
     return notification
+
+
+def get_notif_count(request):
+    received_notifications = request.user.received_notifications.filter(is_read=False)
+    return received_notifications

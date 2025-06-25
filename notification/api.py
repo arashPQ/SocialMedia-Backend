@@ -3,13 +3,12 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 
 from notification.serilizers import NotificationSerializer
 from notification.models import Notification
+from notification.utils import get_notif_count
 
 @api_view(['GET'])
 def notifications(request):
-    received_notifications = request.user.received_notifications.filter(is_read=False)
+    received_notifications = get_notif_count(request)
     serializer = NotificationSerializer(received_notifications, many=True)
-    for notif in received_notifications:
-        print(notif.post)
     
     return JsonResponse(serializer.data, safe=False)
 
