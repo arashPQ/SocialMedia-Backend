@@ -22,6 +22,15 @@ $ source env/bin/activate
 (env)$ python manage.py runserver
 ```
 
+## HINT
+<h3 style=color: red;>
+  make you sure configuration frontend .
+</h3>
+
+```ruby
+$ git clone https://github.com/arashPQ/SocialMedia-Frontend.git
+```
+
 
 <h1 align="center">Hi 👋, I'm <a href="https://github.com/arashPQ" target="blank">
 arash</a></h1>
