@@ -1,6 +1,6 @@
 ## SocialMedia Backend
 
-<h2>Built this project to test my skills and learn new things in Django.<br>It's all about challenging myself!</h2>
+<h4>Built this project to test my skills and learn new things in Django.<br>It's all about challenging myself!</h4>
 
 ## Quick Start
 
