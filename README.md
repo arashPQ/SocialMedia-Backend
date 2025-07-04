@@ -23,7 +23,7 @@ $ source env/bin/activate
 ```
 
 ## HINT
-<h3 style="color: red;">
+<h3>
   make you sure configuration frontend .
 </h3>
 
