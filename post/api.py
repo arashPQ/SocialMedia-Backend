@@ -130,17 +130,33 @@ def user_posts(request, id):
 @api_view(['POST'])
 def post_like(request, pk):
     post = Post.objects.get(pk=pk)
-    if not post.likes.filter(created_by=request.user):
-        like = Like.objects.create(created_by=request.user)
-        post.likes_count = post.likes_count + 1
-        post.likes.add(like)
+    user = request.user
+    if user in post.liked_by.all():
+        post.liked_by.remove(user)
+        post.likes_count -= 1
+        liked = False
         post.save()
-        
-        notification = create_notification(request, 'postlike', post_id=post.id)
-        return JsonResponse({'message': 'like created'})
-
+        return JsonResponse(
+            {
+                'message': 'your liked removed.',
+                'liked': liked,
+                'likes_count': post.likes_count
+                }
+            )
     else:
-        return JsonResponse({'message': 'post already liked.'})
+        # اگر کاربر لایک نکرده، اضافه کن
+        post.liked_by.add(user)
+        post.likes_count += 1
+        liked = True
+        post.save()
+        return JsonResponse(
+            {
+                'message': 'like created',
+                'liked': liked,
+                'likes_count': post.likes_count
+                
+                }
+            )
     
 
 @api_view(['GET'])

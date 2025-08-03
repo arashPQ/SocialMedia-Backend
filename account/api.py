@@ -105,12 +105,12 @@ def signup(request):
     
     if form.is_valid():
         user = form.save()
-        user.is_active = False
+        user.is_active = True
         user.save()
         
-        mail_subject = "Please Verify Your email"
-        email_template = "account/emails/verification_email.html"
-        SendVerificationEmail(request, user, mail_subject, email_template)
+        # mail_subject = "Please Verify Your email"
+        # email_template = "account/emails/verification_email.html"
+        # SendVerificationEmail(request, user, mail_subject, email_template)
         
     else:
         message = form.errors.as_json()
