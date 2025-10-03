@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.db.models import Q
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 from account.models import User, FollowRequest
 from account.serializers import UserSerializer
@@ -19,8 +20,13 @@ def post_feed(request):
     for user in request.user.friends.all():
         user_ids.append(user.id)
         
-        
     posts = Post.objects.filter(created_by_id__in=list(user_ids))
+    user = request.user
+    for post in posts:
+        if user in post.liked_by.all():
+            liked = True
+        else:
+            liked = False
 
     trend = request.GET.get('trend', '')
     
@@ -31,7 +37,8 @@ def post_feed(request):
 
     return JsonResponse({
         'serializer': serializer.data,
-        'notif_count': notif_count
+        'notif_count': notif_count,
+        'liked': False,
         }, safe=False)
 
 
@@ -107,6 +114,8 @@ def user_posts(request, id):
     posts = Post.objects.filter(created_by__id=id)
     user = User.objects.get(pk=id)
     
+    
+    
     if not request.user in user.friends.all():
         posts = posts.filter(is_private=False)
     
@@ -127,7 +136,9 @@ def user_posts(request, id):
     return JsonResponse(data, safe=False)
 
 
+
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def post_like(request, pk):
     post = Post.objects.get(pk=pk)
     user = request.user
@@ -141,10 +152,9 @@ def post_like(request, pk):
                 'message': 'your liked removed.',
                 'liked': liked,
                 'likes_count': post.likes_count
-                }
-            )
+            }
+        )
     else:
-        # اگر کاربر لایک نکرده، اضافه کن
         post.liked_by.add(user)
         post.likes_count += 1
         liked = True
@@ -153,10 +163,9 @@ def post_like(request, pk):
             {
                 'message': 'like created',
                 'liked': liked,
-                'likes_count': post.likes_count
-                
-                }
-            )
+                'likes_count': post.likes_count 
+            }
+        )
     
 
 @api_view(['GET'])

@@ -16,5 +16,6 @@ urlpatterns = [
     path('followers/suggested/', api.suggestion_people, name='suggestion_people'),
     path('followers/<uuid:pk>/<str:status>/', api.handle_follow_request, name='handle_follow_request'),
     path('followers/request/<uuid:pk>/', api.send_follow_request, name='sent_follow_request'),
+    path('followers/unfollow/<uuid:user_id>/', api.unfollow_user, name='unfollow_user'),
     
 ]

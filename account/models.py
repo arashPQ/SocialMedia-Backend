@@ -35,6 +35,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255, blank=True, default='')
     username = models.CharField(max_length=255, unique=True, default=email)
     avatar = models.ImageField(upload_to='avatars', blank=True, null=True)
+    following = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        related_name='followers',
+        blank=True
+    )
     friends = models.ManyToManyField('self')
     friends_count = models.IntegerField(default=0)
     posts_count = models.IntegerField(default=0)
@@ -58,7 +64,6 @@ class User(AbstractBaseUser, PermissionsMixin):
             return settings.FAKE_SITE + self.avatar.url
         else:
             return f'{settings.FAKE_SITE}/static/img/default-profile.jpg'
-
 
 class FollowRequest(models.Model):
     SENT = 'sent'

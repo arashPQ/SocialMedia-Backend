@@ -5,7 +5,7 @@ from django.contrib import messages, auth
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-
+from rest_framework.permissions import IsAuthenticated
 
 from account.forms import SignupForm, ProfileForm
 from account.serializers import FollowRequestSerializer, UserSerializer
@@ -177,10 +177,48 @@ def handle_follow_request(request, status, pk):
     user.save()
 
     follower = request.user
+    follower.friends.add(user)
     follower.friends_count = follower.friends_count + 1
     follower.save()
     
     notification = create_notification(request, 'acceptedfollowrequest', followrequest_id=follow_request.id)
 
     return JsonResponse({'message': 'follow request updated'})
-    
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unfollow_user(request, user_id):
+    user = User.objects.get(pk=user_id)
+    try:
+        current_user = request.user
+        user_to_unfollow = User.objects.get(id=user_id)
+        
+        if current_user.id == user_to_unfollow.id:
+            return JsonResponse({'error': 'You cannot unfollow yourself'}, status=400)
+        
+        is_following = current_user.friends.filter(id=user_id).exists()
+        
+        if is_following:
+            current_user.friends.remove(user_to_unfollow)
+            check1 = FollowRequest.objects.filter(created_for=request.user).filter(created_by=user)
+            check2 = FollowRequest.objects.filter(created_for=user).filter(created_by=request.user)
+            if check1:
+                check1.delete()
+            elif check2:
+                check2.delete()
+            current_user.save()
+            
+            return JsonResponse({
+                'message': f'You unfollowed {user_to_unfollow.username}',
+                'status': 'success',
+                'unfollowed_user_id': str(user_id)
+            })
+        else:
+            return JsonResponse({'error': 'You are not following this user'}, status=400)
+            
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)
